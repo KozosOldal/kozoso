@@ -5,21 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Közös oldal</title>
     
-    <script>
-        window.onerror = function(msg, url, line) {
-            document.body.innerHTML = '<div style="background:white; color:red; padding:20px; font-family:sans-serif; border:5px solid red;"><h1>Hiba történt!</h1><p>' + msg + '</p><p>Sor: ' + line + '</p></div>';
-        };
-    </script>
-
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.min.js"></script>
 
     <style>
         body { font-family: sans-serif; }
@@ -31,47 +20,42 @@
     <script type="text/babel">
         const { useState } = React;
 
-        // --- IKON KEZELÉS JAVÍTÁSA ---
-        // Megkeressük, hol vannak az ikonok. Ha sehol, létrehozunk egy üres helyettesítőt, hogy NE omoljon össze az oldal.
-        const IconLib = window.lucideReact || window.lucide || {};
-        
-        // Segédfüggvény: Ha van ikon, visszaadja, ha nincs, egy üres elemet ad (hogy ne legyen fehér képernyő)
-        const getIcon = (name) => {
-            // Ha a lucideReact könyvtár elérhető és van ilyen ikon
-            if (IconLib[name]) return IconLib[name];
-            // Ha a sima lucide (vanilla) elérhető (ez csak SVG adatokat ad, nem React komponenst, de kezeljük)
-            if (window.lucide && window.lucide.icons && window.lucide.icons[name]) {
-                 return (props) => {
-                     // Egyszerűsített SVG renderelés vészhelyzetre
-                     return <span style={{display:'inline-block', width:'24px', height:'24px', background:'#ccc', borderRadius:'4px', fontSize:'10px', overflow:'hidden'}} title={name}>ICON</span>
-                 };
-            }
-            // Vészmegoldás: Üres ikon helyettesítő
-            return (props) => <span className="fallback-icon" title={name} style={{display:'none'}}>{name}</span>;
-        };
+        // --- IGAZI JAVÍTÁS: KIVETTÜK A KÜLSŐ IKONOKAT ---
+        // Helyettük egy egyszerű "karikát" rajzolunk mindenhova, hogy NE omoljon össze a kód.
+        const FallbackIcon = (props) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="24" height="24" viewBox="0 0 24 24" 
+                fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
+                className={props.className || ""} 
+                {...props}
+            >
+                <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+        );
 
-        // Az összes használt ikont kimentjük biztonságosan
-        const Menu = getIcon("Menu");
-        const X = getIcon("X");
-        const Shield = getIcon("Shield");
-        const Lock = getIcon("Lock");
-        const TrendingUp = getIcon("TrendingUp");
-        const BarChart3 = getIcon("BarChart3");
-        const Camera = getIcon("Camera");
-        const Leaf = getIcon("Leaf");
-        const FileText = getIcon("FileText");
-        const ArrowRight = getIcon("ArrowRight");
-        const Mic = getIcon("Mic");
-        const Headphones = getIcon("Headphones");
-        const Play = getIcon("Play");
-        const MapPin = getIcon("MapPin");
-        const Coins = getIcon("Coins");
-        const Info = getIcon("Info");
-        const Search = getIcon("Search");
-        const Server = getIcon("Server");
+        // Minden ikont erre az egyre irányítunk át, így nem lehet hiba
+        const Menu = FallbackIcon;
+        const X = FallbackIcon;
+        const Shield = FallbackIcon;
+        const Lock = FallbackIcon;
+        const TrendingUp = FallbackIcon;
+        const BarChart3 = FallbackIcon;
+        const Camera = FallbackIcon;
+        const Leaf = FallbackIcon;
+        const FileText = FallbackIcon;
+        const ArrowRight = FallbackIcon;
+        const Mic = FallbackIcon;
+        const Headphones = FallbackIcon;
+        const Play = FallbackIcon;
+        const MapPin = FallbackIcon;
+        const Coins = FallbackIcon;
+        const Info = FallbackIcon;
+        const Search = FallbackIcon;
+        const Server = FallbackIcon;
 
         // ==============================================================================
-        // 2. TARTALOM ÉS ADATOK
+        // TARTALOM ÉS ADATOK
         // ==============================================================================
 
         const TARTALOM = {
@@ -197,4 +181,297 @@
               currentAmount: 450000,
               goalAmount: 1200000,
               image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=1000",
-              color:
+              color: "bg-purple-700",
+              icon: <Mic className="w-4 h-4" />
+            },
+            {
+              id: 7,
+              authors: "Közös oldal Szerkesztőség",
+              title: "Közösségi Híradó",
+              type: "napi hírek",
+              excerpt: "Objektív napi hírösszefoglaló podcast.",
+              currentAmount: 150000,
+              goalAmount: 600000,
+              image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=1000",
+              color: "bg-teal-700",
+              icon: <Headphones className="w-4 h-4" />
+            }
+          ]
+        };
+
+        const App = () => {
+          const [isMenuOpen, setIsMenuOpen] = useState(false);
+          
+          const initialProjects = [
+            ...(TARTALOM.stories || []), 
+            ...(TARTALOM.podcasts || []), 
+            ...(TARTALOM.generalSupport || [])
+          ];
+
+          const [allProjects, setAllProjects] = useState(initialProjects);
+
+          const handleFund = (id) => {
+            setAllProjects(allProjects.map(project => {
+              if (project.id === id) {
+                return { 
+                  ...project, 
+                  currentAmount: project.currentAmount + 2000
+                };
+              }
+              return project;
+            }));
+          };
+
+          const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('hu-HU', { style: 'currency', currency: 'HUF', maximumFractionDigits: 0 }).format(amount);
+          };
+
+          const formatNumber = (num) => {
+            return new Intl.NumberFormat('hu-HU').format(num);
+          };
+
+          const renderCard = (item) => {
+            const percent = Math.min((item.currentAmount / item.goalAmount) * 100, 100);
+            const supportersNeeded = Math.ceil(item.goalAmount / 2000);
+            const supportersCurrent = Math.floor(item.currentAmount / 2000);
+
+            return (
+              <div key={item.id} className="group bg-white rounded-none overflow-hidden shadow-sm hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] transition-all duration-200 flex flex-col h-full border border-slate-200">
+                <div className="relative h-56 overflow-hidden border-b border-slate-200">
+                  {item.image ? (
+                    <img 
+                      src={item.image} 
+                      alt={item.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter grayscale group-hover:grayscale-0"
+                    />
+                  ) : (
+                    <div className={`w-full h-full ${item.color} flex items-center justify-center`}>
+                       {React.cloneElement(item.icon, { size: 64, className: "text-white opacity-20" })}
+                    </div>
+                  )}
+                  
+                  <div className={`absolute top-0 left-0 ${item.color} text-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2`}>
+                    {item.icon} {item.subtitle || item.type || "Támogatás"}
+                  </div>
+                </div>
+
+                <div className="p-6 flex-grow flex flex-col">
+                  <h3 className="text-xl font-serif font-bold text-slate-900 mb-2 leading-tight group-hover:text-red-700 transition-colors">
+                    {item.title}
+                  </h3>
+                  {item.authors && (
+                    <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+                      {item.authors}
+                    </div>
+                  )}
+                  <p className="text-slate-600 text-sm leading-relaxed mb-6 line-clamp-4 flex-grow">
+                    {item.description || item.excerpt}
+                  </p>
+
+                  <div className="mt-auto pt-4 border-t border-slate-100">
+                    <div className="flex justify-between items-end mb-2">
+                      <div className="text-xs text-slate-500 uppercase tracking-wider font-bold">
+                        Támogatottság
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-slate-900">{Math.round(percent)}%</div>
+                      </div>
+                    </div>
+                    
+                    <div className="w-full bg-slate-200 h-1.5 mb-4">
+                      <div 
+                        className={`h-full ${item.color}`} 
+                        style={{ width: `${percent}%` }}
+                      ></div>
+                    </div>
+
+                    <div className="bg-slate-50 p-3 mb-4 border border-slate-100 text-xs text-slate-600 space-y-1">
+                        <div className="flex justify-between">
+                          <span>Szükséges:</span>
+                          <span className="font-bold">{formatNumber(supportersNeeded)} db × 2000 Ft</span>
+                        </div>
+                        <div className="flex justify-between text-slate-400">
+                          <span>Teljesítve:</span>
+                          <span>{formatNumber(supportersCurrent)} db</span>
+                        </div>
+                    </div>
+
+                    <button 
+                      onClick={() => handleFund(item.id)}
+                      className="w-full bg-slate-900 text-white py-3 rounded-none font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Coins size={14} />
+                      Támogatom (2000 Ft)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          };
+
+          return (
+            <div className="min-h-screen bg-slate-100 font-sans text-slate-900 selection:bg-red-100 selection:text-red-900">
+              
+              {/* Navigation */}
+              <nav className="sticky top-0 z-50 bg-slate-100/95 backdrop-blur border-b border-slate-300 shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="flex justify-between h-20 items-center">
+                    <div className="flex items-center gap-3 group cursor-pointer">
+                      <div className="bg-slate-900 text-white px-4 py-2 font-serif font-black text-2xl tracking-tighter group-hover:bg-red-700 transition-colors uppercase">
+                        Közös oldal
+                      </div>
+                    </div>
+                    
+                    <div className="hidden md:flex items-center space-x-8 font-bold text-xs uppercase tracking-widest text-slate-600">
+                      <a href="#" className="hover:text-red-700 transition-colors">Projektek</a>
+                      <a href="#" className="hover:text-red-700 transition-colors">Támogatás</a>
+                      <a href="#" className="hover:text-red-700 transition-colors">Munkatársak</a>
+                      <button className="bg-red-700 text-white px-6 py-2.5 rounded-none font-bold hover:bg-slate-900 transition-all shadow-sm hover:shadow-md">
+                        Belépés
+                      </button>
+                    </div>
+
+                    <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden p-2 text-slate-600">
+                      {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+                  </div>
+                </div>
+              </nav>
+
+              {/* MANIFESTO */}
+              <header className="relative bg-slate-900 text-slate-100">
+                <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-16 md:py-24 text-center">
+                  <div className="inline-block mb-6 border border-slate-600 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                    Független • Közösségi • Tényfeltáró
+                  </div>
+
+                  <h1 className="font-serif text-4xl md:text-6xl font-bold mb-8 leading-tight tracking-tight text-white">
+                    {TARTALOM.header.title}
+                  </h1>
+                  
+                  <div className="text-left text-slate-300 max-w-4xl mx-auto space-y-4 leading-relaxed text-base md:text-lg font-light">
+                    <p className="font-medium text-white">
+                      {TARTALOM.header.text_1}
+                    </p>
+                    <p>{TARTALOM.header.text_2}</p>
+                    <p>{TARTALOM.header.text_3}</p>
+                    <p className="pl-4 border-l-2 border-red-700 text-slate-400 italic">
+                      {TARTALOM.header.highlight}
+                    </p>
+                    <p>{TARTALOM.header.text_4}</p>
+                    <p className="font-medium text-white border-t border-slate-800 pt-4 mt-6">
+                      {TARTALOM.header.closing}
+                    </p>
+                  </div>
+                </div>
+              </header>
+
+              {/* MAIN CONTENT SECTION */}
+              <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                {/* Section Header with Info */}
+                <div className="flex flex-col items-start mb-12 px-2">
+                  <h2 className="text-3xl font-serif font-bold text-slate-900 uppercase tracking-wide border-b-4 border-slate-900 inline-block pb-1">{TARTALOM.pilotSection.title}</h2>
+                  
+                  <p className="text-slate-600 mt-4 mb-6 max-w-3xl leading-relaxed text-lg">
+                    {TARTALOM.pilotSection.intro}
+                  </p>
+
+                  <div className="mt-2 flex flex-col sm:flex-row items-start gap-4 bg-white border border-slate-200 p-5 shadow-sm">
+                    <div className="px-4 py-2 bg-red-600 text-white rounded-none text-xs font-bold uppercase tracking-widest shadow-sm flex-shrink-0">
+                        <Coins size={12} className="inline mr-2 -mt-0.5" /> Max 2000 Ft
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                          <Info className="text-red-600" size={18} />
+                          <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wide">{TARTALOM.pilotSection.infoTitle}</h4>
+                      </div>
+                      <p className="text-sm text-slate-600 leading-relaxed">
+                        {TARTALOM.pilotSection.infoText}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 1. STORIES (Pilot projektek) */}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                  {allProjects.filter(p => !p.subtitle && !p.type?.includes('podcast') && !p.type?.includes('hírek')).map(renderCard)}
+                </div>
+
+                {/* 2. PODCASTS & GENERAL SUPPORT (Vegyesen, de vizuálisan egységesen) */}
+                <div className="mb-8 px-2 border-t border-slate-300 pt-12">
+                    <h3 className="text-xl font-bold text-slate-900 uppercase tracking-widest mb-8">További támogatási lehetőségek</h3>
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                   {/* Először a podcastok */}
+                   {allProjects.filter(p => p.type?.includes('podcast') || p.type?.includes('hírek')).map(renderCard)}
+                   {/* Utána a működési támogatás */}
+                   {allProjects.filter(p => p.subtitle).map(renderCard)}
+                </div>
+
+              </section>
+
+              {/* AUTHORS SECTION */}
+              <section className="bg-slate-200 py-16 border-t border-slate-300">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="text-center mb-12">
+                    <h2 className="text-2xl font-serif font-bold text-slate-900 uppercase tracking-widest">
+                      Munkatársak
+                    </h2>
+                    <div className="w-12 h-1 bg-slate-900 mx-auto mt-4"></div>
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
+                    {TARTALOM.authors.map((author, index) => (
+                      <div key={index} className="flex flex-col items-center text-center">
+                        <div className="w-24 h-24 mb-4 rounded-full overflow-hidden border-4 border-slate-300 group-hover:border-slate-400 transition-colors">
+                          <img 
+                            src={author.image} 
+                            alt={author.name}
+                            className="w-full h-full object-cover filter grayscale contrast-125 group-hover:grayscale-0 transition-all duration-500"
+                          />
+                        </div>
+                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-1">{author.name}</h3>
+                        <span className="text-[10px] font-bold text-red-700 uppercase tracking-wider mb-2 block">{author.role}</span>
+                        <p className="text-xs text-slate-600 leading-relaxed max-w-[200px]">
+                          {author.bio}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* FOOTER */}
+              <footer className="bg-slate-900 text-slate-500 py-12 border-t border-black">
+                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid md:grid-cols-3 gap-8 text-sm mb-8">
+                        <div>
+                           <h4 className="text-white font-bold uppercase tracking-widest mb-2 flex items-center gap-2"><Shield size={16}/> Függetlenség</h4>
+                           <p>A mikroadományok garantálják, hogy csak az olvasóknak tartozunk elszámolással.</p>
+                        </div>
+                        <div>
+                           <h4 className="text-white font-bold uppercase tracking-widest mb-2 flex items-center gap-2"><Lock size={16}/> Reklámmentesség</h4>
+                           <p>Nincs állami hirdetés, nincs céges befolyás. Tiszta forrás.</p>
+                        </div>
+                        <div>
+                           <h4 className="text-white font-bold uppercase tracking-widest mb-2 flex items-center gap-2"><TrendingUp size={16}/> Transzparencia</h4>
+                           <p>Nyilvános számlálók minden projektnél. Átlátható működés.</p>
+                        </div>
+                    </div>
+                    <div className="text-center text-[10px] uppercase tracking-widest pt-8 border-t border-slate-800">
+                        <p>&copy; 2024 Közös oldal Média Alapítvány.</p>
+                    </div>
+                 </div>
+              </footer>
+
+            </div>
+          );
+        };
+
+        // ALKALMAZÁS INDÍTÁSA
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
