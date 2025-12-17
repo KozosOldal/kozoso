@@ -1,1 +1,228 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Közös oldal</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/lucide-react@0.263.1/dist/umd/lucide-react.min.js"></script>
 
+    <style>
+        body { font-family: sans-serif; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // 1. IMPORTOK HELYETTESÍTÉSE
+        // Mivel nem build rendszerben vagyunk, a globális változókból szedjük ki a függvényeket
+        const { useState } = React;
+        const { Menu, X, Shield, Lock, TrendingUp, BarChart3, Camera, Leaf, FileText, ArrowRight, Mic, Headphones, Play, MapPin, Coins, Info, Search, Server } = lucideReact;
+
+        // ==============================================================================
+        // 2. TARTALOM ÉS ADATOK (A te kódod)
+        // ==============================================================================
+
+        const TARTALOM = {
+          header: {
+            title: "Valódi közösségi média.",
+            text_1: "A mai médiatérben algoritmusok és politikai érdekek döntik el, mit látsz a világból. Mi ezt nem fogadjuk el.",
+            text_2: "Összesen több mint száz évnyi közös újságírói tapasztalattal a hátunk mögött régóta azon dolgozunk, hogy ellensúlyozzuk a hatalmi és gazdasági visszaéléseket, és hangot adjunk azoknak, akik ezeknek a kárvallottjai. (Ezen dolgoztunk együtt a Szabad Európán is, amíg el nem hallgattattak)",
+            text_3: "A Közös oldal egy újfajta médiaszolgáltatás, éppen ezért az alapokhoz, a valódi közszolgálathoz tér vissza: mi nem a kattintásokért versenyzünk, hanem azért, hogy objektíven eléd tárjuk azokat a történeteket, amik mellett elmegy a hírverseny.",
+            highlight: "Tényfeltárás, oknyomozás, terepmunka, a vidék és a társadalom peremének valósága – ezt kínáljuk.",
+            text_4: "De a legfontosabb: ez a portál nem a nagy médiacégek vagy politikai pártok érdekeit szolgálja, hanem a Tiédet. Ez egy eszköz arra, hogy eldönthesd, milyen történeteket akarsz látni, hallani és olvasni.",
+            closing: "Ha érdekel egy történet, és segítesz összegyűjteni a forrásokat az elkészítéséhez, mi megírjuk, leforgatjuk, közreadjuk. Ez a függetlenségünk záloga."
+          },
+
+          pilotSection: {
+            title: "Pilot projektek",
+            intro: "Mikroadományaiddal nemcsak a kiemelt projekteket, hanem az oldal fenntartható működését és az Oknyomozó Alapot is támogathatod. Ez az alap teszi lehetővé, hogy olyan kényes ügyeknek is utánajárjunk, amelyekről a nyomozás érdekében előre nem beszélhetünk – a részletes elszámolást a leleplezés után hozzuk nyilvánosságra.",
+            infoTitle: "Miért csak 2000 Ft?",
+            infoText: "A Közös oldal függetlenségének záloga a mikroadomány-modell. Egyetlen támogató sem adhat többet 2000 forintnál egy projektre. Ezzel garantáljuk, hogy senki – még a leggazdagabbak sem – vásárolhatnak befolyást a szerkesztőségben. Mi a sok kicsi erejében hiszünk, nem a nagytőkében."
+          },
+
+          generalSupport: [
+            {
+              id: 'fund',
+              title: "Oknyomozó Alap",
+              subtitle: "Háttérmunka & Kutatás",
+              description: "Ebbe a kalapba projekt nélkül is tehetsz. Ebből fedezzük az előkutatást, cégadatbázisokat és közérdekű adatigényléseket. Nyomon követhető lesz, melyik későbbi sztori mennyit használt fel belőle.",
+              icon: <Search className="w-5 h-5" />,
+              color: "bg-red-800",
+              currentAmount: 1200000,
+              goalAmount: 5000000 
+            },
+            {
+              id: 'site',
+              title: "Működési Támogatás",
+              subtitle: "A portál fenntartása",
+              description: "Támogasd magát az oldalt és a szerkesztőség alapvető működését. Hogy legyen hol megjelennie az igazságnak.",
+              icon: <Server className="w-5 h-5" />,
+              color: "bg-slate-700",
+              currentAmount: 452000, 
+              goalAmount: 2000000 
+            }
+          ],
+
+          authors: [
+            {
+              name: "Barna-Lipkovski Miklós",
+              role: "Videós újságíró, dokumentumfilmes",
+              bio: "A Szabad Európa korábbi videós munkatársa. Tizenhat éve foglalkozik dokumentumfilmezéssel és videós újságírással. Szabadúszóként dolgozott a Radio Cafénak, a Magyar Narancsnak.",
+              image: "https://www.vac.rs/storage/images/general/Miklos.jpg"
+            },
+            {
+              name: "Báthory Róbert",
+              role: "Oknyomozó újságíró",
+              bio: "A Szabad Európa korábbi szenior munkatársa. Tizenhét éve dolgozik a médiában, ebből tíz évet a legnagyobb televíziók hírműsorainál töltött.",
+              image: "https://gdb.rferl.org/bb7336aa-f42c-4436-83e4-2ab7491fee36_cx9_cy0_cw86_w144_r5.jpg"
+            },
+            {
+              name: "Fazekas Pálma",
+              role: "Hírszerkesztő",
+              bio: "A Szabad Európa korábbi hírszerkesztője. Csaknem harminc éve dolgozik újságíróként a nyomtatott és az elektronikus sajtó szinte minden területén.",
+              image: "https://gdb.rferl.org/7330b645-b02b-42fc-af41-2e7fe787e485_cx11_cy2_cw79_w144_r5.jpg"
+            },
+            {
+              name: "Horn Gabriella",
+              role: "Oknyomozó újságíró",
+              bio: "Több mint húsz éve újságíró. A Szabad Európa korábbi rovatvezetője, az atlatszo.hu alapítója. Hégető Honorka-díjas és Soma-díjas újságíró.",
+              image: "https://gdb.rferl.org/09850000-0aff-0242-c574-08da9fc567ab_cx14_cy0_cw74_w144_r5.jpg"
+            },
+            {
+              name: "Kósa András",
+              role: "Újságíró, szerkesztő",
+              bio: "A Szabad Európa korábbi főmunkatársa. 2001 óta újságíró. Dolgozott a Magyar Hírlapnál, Magyar Nemzetnél, Hír TV-nél, a HVG-nél és az Azonnalinál.",
+              image: "https://hang.hu/data/generated/articles/132/1324/article-132454/KosaAndras_focuspointscale_w856_fx0_fy0.webp?key=ZjEyMzU5MmVjM2UyZDY1YWEzYmM0YmIyMDZiODg1NWE3MjI0ODFjNWY3NGFlOTA1YTZkMDM0M2UwMjBlMjAyZg==&v=1765884566"
+            }
+          ],
+
+          stories: [
+            {
+              id: 5,
+              authors: "Közös oldal Oknyomozó Csoport",
+              title: "CÍM NÉLKÜL: Kelet-magyarországi tényfeltárás",
+              type: "kiemelt nyomozás",
+              excerpt: "Folyamatban lévő nyomozás. A részleteket a forrásvédelem miatt nem közöljük. A támogatás az utazási és jogi költségeket fedezi.",
+              currentAmount: 1250000, 
+              goalAmount: 4000000,    
+              image: "https://images.unsplash.com/photo-1555601568-c9e613090631?auto=format&fit=crop&q=80&w=1000",
+              color: "bg-slate-800",
+              icon: <Shield className="w-4 h-4" />
+            },
+            {
+              id: 1,
+              authors: "Horn Gabriella & Barna-Lipkovski Miklós",
+              title: "A felcsúti birodalom határai",
+              type: "videoriport",
+              excerpt: "Helyszíni riport a miniszterelnök szülőföldjéről. Eddig be nem mutatott történetek és összefüggések.",
+              currentAmount: 850000,
+              goalAmount: 1200000,
+              image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Pancho_Ar%C3%A9na_l%C3%A9gi_fot%C3%B3.jpg/800px-Pancho_Ar%C3%A9na_l%C3%A9gi_fot%C3%B3.jpg",
+              color: "bg-blue-600",
+              icon: <Camera className="w-4 h-4" />
+            },
+            {
+              id: 2,
+              authors: "Kósa András",
+              title: "Balatongyörök: Kastélyból luxuslakópark?",
+              type: "oknyomozás",
+              excerpt: "Balatongyörökön 242 millió forintért, vagyis 73 ezer forintos négyzetméter áron vette meg egy vállalkozás a település központjában álló kastély-üdülőt. Luxuslakóparkot terveznek a helyére.",
+              currentAmount: 1850000,
+              goalAmount: 2000000,
+              image: "https://images.unsplash.com/photo-1565118531796-7a3012753a73?auto=format&fit=crop&q=80&w=1000",
+              color: "bg-red-600",
+              icon: <FileText className="w-4 h-4" />
+            }
+          ],
+
+          podcasts: [
+            {
+              id: 6,
+              authors: "Fazekas Pálma",
+              title: "SZTORIBAN: Műhelytitkok",
+              type: "háttér podcast",
+              excerpt: "Újságírói háttérműsor. Hogyan készülnek a tényfeltáró anyagok? Mit mondanak a források kamerán kívül?",
+              currentAmount: 450000,
+              goalAmount: 1200000,
+              image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=1000",
+              color: "bg-purple-700",
+              icon: <Mic className="w-4 h-4" />
+            },
+            {
+              id: 7,
+              authors: "Közös oldal Szerkesztőség",
+              title: "Közösségi Híradó",
+              type: "napi hírek",
+              excerpt: "Objektív napi hírösszefoglaló podcast.",
+              currentAmount: 150000,
+              goalAmount: 600000,
+              image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=1000",
+              color: "bg-teal-700",
+              icon: <Headphones className="w-4 h-4" />
+            }
+          ]
+        };
+
+        // ==============================================================================
+        // 3. LOGIKA ÉS MEGJELENÍTÉS (A te kódod)
+        // ==============================================================================
+
+        const App = () => {
+          const [isMenuOpen, setIsMenuOpen] = useState(false);
+          
+          const initialProjects = [
+            ...(TARTALOM.stories || []), 
+            ...(TARTALOM.podcasts || []), 
+            ...(TARTALOM.generalSupport || [])
+          ];
+
+          const [allProjects, setAllProjects] = useState(initialProjects);
+
+          const handleFund = (id) => {
+            setAllProjects(allProjects.map(project => {
+              if (project.id === id) {
+                return { 
+                  ...project, 
+                  currentAmount: project.currentAmount + 2000
+                };
+              }
+              return project;
+            }));
+          };
+
+          const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('hu-HU', { style: 'currency', currency: 'HUF', maximumFractionDigits: 0 }).format(amount);
+          };
+
+          const formatNumber = (num) => {
+            return new Intl.NumberFormat('hu-HU').format(num);
+          };
+
+          const renderCard = (item) => {
+            const percent = Math.min((item.currentAmount / item.goalAmount) * 100, 100);
+            const supportersNeeded = Math.ceil(item.goalAmount / 2000);
+            const supportersCurrent = Math.floor(item.currentAmount / 2000);
+
+            return (
+              <div key={item.id} className="group bg-white rounded-none overflow-hidden shadow-sm hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] transition-all duration-200 flex flex-col h-full border border-slate-200">
+                <div className="relative h-56 overflow-hidden border-b border-slate-200">
+                  {item.image ? (
+                    <img 
+                      src={item.image} 
+                      alt={item.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter grayscale group-hover:grayscale-0"
+                    />
+                  ) : (
+                    <div className={`w-full h-full ${item.color} flex items-center justify-center`}>
+                       {React.cloneElement(item.icon, { size: 64, className: "text-white opacity-20" })}
+                    </div>
+                  )}
