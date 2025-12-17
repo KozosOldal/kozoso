@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Közös oldal</title>
     
+    <script>
+        window.onerror = function(msg, url, line) {
+            document.body.innerHTML = '<div style="background:white; color:red; padding:20px; font-family:sans-serif; border:5px solid red;"><h1>Hiba történt!</h1><p>' + msg + '</p><p>Sor: ' + line + '</p></div>';
+        };
+    </script>
+
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
@@ -12,7 +18,8 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <script src="https://unpkg.com/lucide-react@0.263.1/dist/umd/lucide-react.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.min.js"></script>
 
     <style>
         body { font-family: sans-serif; }
@@ -22,13 +29,49 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        // 1. IMPORTOK HELYETTESÍTÉSE
-        // Mivel nem build rendszerben vagyunk, a globális változókból szedjük ki a függvényeket
         const { useState } = React;
-        const { Menu, X, Shield, Lock, TrendingUp, BarChart3, Camera, Leaf, FileText, ArrowRight, Mic, Headphones, Play, MapPin, Coins, Info, Search, Server } = lucideReact;
+
+        // --- IKON KEZELÉS JAVÍTÁSA ---
+        // Megkeressük, hol vannak az ikonok. Ha sehol, létrehozunk egy üres helyettesítőt, hogy NE omoljon össze az oldal.
+        const IconLib = window.lucideReact || window.lucide || {};
+        
+        // Segédfüggvény: Ha van ikon, visszaadja, ha nincs, egy üres elemet ad (hogy ne legyen fehér képernyő)
+        const getIcon = (name) => {
+            // Ha a lucideReact könyvtár elérhető és van ilyen ikon
+            if (IconLib[name]) return IconLib[name];
+            // Ha a sima lucide (vanilla) elérhető (ez csak SVG adatokat ad, nem React komponenst, de kezeljük)
+            if (window.lucide && window.lucide.icons && window.lucide.icons[name]) {
+                 return (props) => {
+                     // Egyszerűsített SVG renderelés vészhelyzetre
+                     return <span style={{display:'inline-block', width:'24px', height:'24px', background:'#ccc', borderRadius:'4px', fontSize:'10px', overflow:'hidden'}} title={name}>ICON</span>
+                 };
+            }
+            // Vészmegoldás: Üres ikon helyettesítő
+            return (props) => <span className="fallback-icon" title={name} style={{display:'none'}}>{name}</span>;
+        };
+
+        // Az összes használt ikont kimentjük biztonságosan
+        const Menu = getIcon("Menu");
+        const X = getIcon("X");
+        const Shield = getIcon("Shield");
+        const Lock = getIcon("Lock");
+        const TrendingUp = getIcon("TrendingUp");
+        const BarChart3 = getIcon("BarChart3");
+        const Camera = getIcon("Camera");
+        const Leaf = getIcon("Leaf");
+        const FileText = getIcon("FileText");
+        const ArrowRight = getIcon("ArrowRight");
+        const Mic = getIcon("Mic");
+        const Headphones = getIcon("Headphones");
+        const Play = getIcon("Play");
+        const MapPin = getIcon("MapPin");
+        const Coins = getIcon("Coins");
+        const Info = getIcon("Info");
+        const Search = getIcon("Search");
+        const Server = getIcon("Server");
 
         // ==============================================================================
-        // 2. TARTALOM ÉS ADATOK (A te kódod)
+        // 2. TARTALOM ÉS ADATOK
         // ==============================================================================
 
         const TARTALOM = {
@@ -154,75 +197,4 @@
               currentAmount: 450000,
               goalAmount: 1200000,
               image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=1000",
-              color: "bg-purple-700",
-              icon: <Mic className="w-4 h-4" />
-            },
-            {
-              id: 7,
-              authors: "Közös oldal Szerkesztőség",
-              title: "Közösségi Híradó",
-              type: "napi hírek",
-              excerpt: "Objektív napi hírösszefoglaló podcast.",
-              currentAmount: 150000,
-              goalAmount: 600000,
-              image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=1000",
-              color: "bg-teal-700",
-              icon: <Headphones className="w-4 h-4" />
-            }
-          ]
-        };
-
-        // ==============================================================================
-        // 3. LOGIKA ÉS MEGJELENÍTÉS (A te kódod)
-        // ==============================================================================
-
-        const App = () => {
-          const [isMenuOpen, setIsMenuOpen] = useState(false);
-          
-          const initialProjects = [
-            ...(TARTALOM.stories || []), 
-            ...(TARTALOM.podcasts || []), 
-            ...(TARTALOM.generalSupport || [])
-          ];
-
-          const [allProjects, setAllProjects] = useState(initialProjects);
-
-          const handleFund = (id) => {
-            setAllProjects(allProjects.map(project => {
-              if (project.id === id) {
-                return { 
-                  ...project, 
-                  currentAmount: project.currentAmount + 2000
-                };
-              }
-              return project;
-            }));
-          };
-
-          const formatCurrency = (amount) => {
-            return new Intl.NumberFormat('hu-HU', { style: 'currency', currency: 'HUF', maximumFractionDigits: 0 }).format(amount);
-          };
-
-          const formatNumber = (num) => {
-            return new Intl.NumberFormat('hu-HU').format(num);
-          };
-
-          const renderCard = (item) => {
-            const percent = Math.min((item.currentAmount / item.goalAmount) * 100, 100);
-            const supportersNeeded = Math.ceil(item.goalAmount / 2000);
-            const supportersCurrent = Math.floor(item.currentAmount / 2000);
-
-            return (
-              <div key={item.id} className="group bg-white rounded-none overflow-hidden shadow-sm hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] transition-all duration-200 flex flex-col h-full border border-slate-200">
-                <div className="relative h-56 overflow-hidden border-b border-slate-200">
-                  {item.image ? (
-                    <img 
-                      src={item.image} 
-                      alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter grayscale group-hover:grayscale-0"
-                    />
-                  ) : (
-                    <div className={`w-full h-full ${item.color} flex items-center justify-center`}>
-                       {React.cloneElement(item.icon, { size: 64, className: "text-white opacity-20" })}
-                    </div>
-                  )}
+              color:
